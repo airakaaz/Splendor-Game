@@ -1,7 +1,7 @@
 import customtkinter as ctk
-from utils import MAIN_FONT, COLORS, COIN_DIAMETER
-from utils import clear_children, clear_grid
-from elements import Card, Face
+from utils import MAIN_FONT, COLORS
+from utils import clear_grid
+from elements import Face, Coin
 
 class Deck(ctk.CTkFrame):
 
@@ -31,6 +31,15 @@ class Deck(ctk.CTkFrame):
         self.cards_frame.rowconfigure(0, weight=0, uniform='a')
         self.cards_frame.columnconfigure(0, weight=3, uniform='a')
         self.cards_frame.columnconfigure((1,2,3,4,5), weight=2, uniform='a')
+
+        self.coin_labels = [[], []]
+        for i in range(6):
+            k = 0 if i<3 else 3
+            Coin(self.coins_frame, self.controller, i, active=False).grid(column=1+k, row=i%3)
+            self.coin_labels[0].append(ctk.CTkLabel(self.coins_frame, text='', font=(MAIN_FONT, 22), text_color=COLORS[i][0]))
+            self.coin_labels[0][-1].grid(column=2+k, row=i%3)
+            self.coin_labels[1].append(ctk.CTkLabel(self.coins_frame, text='', font=(MAIN_FONT, 22), text_color=COLORS[i][0]))
+            self.coin_labels[1][-1].grid(column=k, row=i%3)
         
 
     def load_cards(self, player):
@@ -53,10 +62,6 @@ class Deck(ctk.CTkFrame):
 
     def load_coins(self, player):
 
-        clear_children(self.coins_frame)
-        self.coins = [[], []]
-
         for i in range(6):
-            k = 0 if i<3 else 3
-            ctk.CTkFrame(self.coins_frame, fg_color=COLORS[i][0], width=COIN_DIAMETER, height=COIN_DIAMETER, corner_radius=100).grid(column=1+k, row=i%3)
-            ctk.CTkLabel(self.coins_frame, text=player.coins[i], font=(MAIN_FONT, 22), text_color=COLORS[i][0]).grid(column=2+k, row=i%3)
+            self.coin_labels[0][i].configure(text=player.coins[i])
+            self.coin_labels[1][i].configure(text='')

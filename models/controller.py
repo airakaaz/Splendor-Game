@@ -146,10 +146,8 @@ class Controller():
                 #show coins to be deduced from the player's balance
                 if self.mode == Mode.GET_CARD:
                     for i in range(6):
-                        k = 0
-                        if i>2 : k=3
                         if self.price[i] != 0 :
-                            ctk.CTkLabel(self.deck.coins_frame, text=f'-{self.price[i]}',text_color=COLORS[i][0], font=(MAIN_FONT, 22)).grid(column=0+k, row=i%3)
+                            self.deck.coin_labels[1].configure(text=f'-{self.price[i]}')
     
 
     def wishlist_remove(self, coin):
@@ -178,7 +176,7 @@ class Controller():
                 else:
                     self.deck.load_cards()
                 
-                self.deck.load_coins()
+                self.deck.load_coins(self.player)
                 self.wishlist = None
             
             case Mode.RESERVE_CARD:
