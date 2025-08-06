@@ -5,11 +5,10 @@ from elements import Card, Face
 
 class Deck(ctk.CTkFrame):
 
-    def __init__(self, master, player=None):
+    def __init__(self, parent):
 
-        super().__init__(master)
-        self.master = master
-        self.player = player
+        super().__init__(parent)
+        self.controller = None
         
         self.rowconfigure(0, weight=1)
         self.columnconfigure(0, weight=3, uniform='a')
@@ -34,29 +33,29 @@ class Deck(ctk.CTkFrame):
         self.cards_frame.columnconfigure((1,2,3,4,5), weight=2, uniform='a')
         
 
-    def load_cards(self):
+    def load_cards(self, player):
 
         clear_children(self.cards_frame)
         clear_children(self.reserved_frame)
 
-        for i, suit in enumerate(self.player.cards):
+        for i, suit in enumerate(player.cards):
             pad = 10
-            for c in suit:
-                Card(self.cards_frame, self.master.board, c, owned=True).grid(column=i+1, row=0, sticky='n', pady=pad)
+            for j, c in suit:
+                Card(self.cards_frame, self.controller, c, owned=True).grid(column=i+1, row=0, sticky='n', pady=pad)
                 pad += 50
         
         pad = 10
-        for face in self.player.faces:
-            Face(self.cards_frame, self.master.board, face, owned=True).grid(column=0, row=0, sticky='n', pady=pad)
+        for face in player.faces:
+            Face(self.cards_frame, self.controller.board, face, owned=True).grid(column=0, row=0, sticky='n', pady=pad)
             pad += 50
         
         self.reserved = []
-        for i, c in enumerate(self.player.reserved):
-            self.reserved.append(Card(self.reserved_frame, self.master.board, c, i, reserved=True))
+        for i, c in enumerate(player.reserved):
+            self.reserved.append(Card(self.reserved_frame, self.controller, c, i, reserved=True))
             self.reserved[-1].grid(column=0, row=0, sticky='nw', padx=30+i*55, pady=40+i*52)
 
 
-    def load_coins(self):
+    def load_coins(self, player):
 
         clear_children(self.coins_frame)
         self.coins = [[], []]
@@ -64,4 +63,4 @@ class Deck(ctk.CTkFrame):
         for i in range(6):
             k = 0 if i<3 else 3
             ctk.CTkFrame(self.coins_frame, fg_color=COLORS[i][0], width=COIN_DIAMETER, height=COIN_DIAMETER, corner_radius=100).grid(column=1+k, row=i%3)
-            ctk.CTkLabel(self.coins_frame, text=self.player.coins[i], font=(MAIN_FONT, 22), text_color=COLORS[i][0]).grid(column=2+k, row=i%3)
+            ctk.CTkLabel(self.coins_frame, text=player.coins[i], font=(MAIN_FONT, 22), text_color=COLORS[i][0]).grid(column=2+k, row=i%3)

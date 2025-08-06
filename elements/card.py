@@ -1,6 +1,6 @@
 import customtkinter as ctk
-from utils import MAIN_FONT, COLORS, RANKS
-from utils import Mode
+from utils import MAIN_FONT, COLORS, RANKS, Mode
+
 
 class Card(ctk.CTkFrame):
 
@@ -60,10 +60,9 @@ class Card(ctk.CTkFrame):
                 self.controller.price = price
                 self.controller.wishlist_cancel()
                 self.controller.set_mode(Mode.GET_CARD)
-                self.controller.wishlist_add(self)
-            
+                self.controller.wishlist_add(self) 
 
-        match self.controller.master.mode:
+        match self.controller.mode:
             case Mode.IDLE:
                 validate_card()
 

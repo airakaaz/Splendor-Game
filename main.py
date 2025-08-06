@@ -1,9 +1,8 @@
 import customtkinter as ctk
 from views  import Home, Deck, Board
-from utils  import import_cards
 from utils  import MAIN_FONT, INIT_THEME, COLOR_THEME
 from utils  import Mode
-from random import choice
+from models import Controller
 
 ctk.set_appearance_mode(INIT_THEME)
 ctk.set_default_color_theme(COLOR_THEME)
@@ -25,6 +24,7 @@ class SplendorApp(ctk.CTk):
         
         self.header = ctk.CTkLabel(self, text='', font=(MAIN_FONT, 42))
         self.header.grid(column=0, row=0, columnspan=3)
+
         self.score = ctk.CTkLabel(self, text='', font=(MAIN_FONT, 42))
         self.score.grid(column=0, row=0)
         
@@ -43,73 +43,44 @@ class SplendorApp(ctk.CTk):
 
         self.attributes('-fullscreen', True)
         self.rowconfigure(2, weight=4, uniform='a')
-        self.round_over = ctk.BooleanVar()
+        self.round_ended = ctk.BooleanVar()
         win = False
-        
-        self.table_memory = [[], [], [], []]
-        self.coins = [2, 2, 2, 2, 2, 5]
-        self.cards = import_cards()
-        self.faces = [
-            [0, 0, 4, 4, 0],
-            [4, 0, 4, 0, 0],
-            [3, 0, 3, 3, 0],
-            [0, 0, 3, 3, 3],
-            [0, 0, 0, 4, 4],
-            [0, 3, 0, 3, 3],
-            [0, 4, 0, 0, 4],
-            [3, 3, 3, 0, 0],
-            [4, 4, 0, 0, 0],
-            [3, 3, 0, 0, 3]
-        ]
-        
-        if len(self.players) == 4:
-            for i in range(5):
-                self.coins[i] = 7
-        
-        else:
-            for i in range(5):
-                self.coins[i] += len(self.players)
-        
-        for r in range(3):
-            for x in range(4):
-                c = choice(self.cards[r])
-                self.table_memory[r].append(c)
-                self.cards[r].pop(self.cards[r].index(c))
-        
-        for i in range(1+len(self.players)):
-            f = choice(self.faces)
-            self.table_memory[-1].append(f)
-            self.faces.pop(self.faces.index(f))
         
         self.deck = Deck(self)
         self.deck.grid(column=0, row=2, columnspan=3, sticky='news', pady=20, padx=40)
-        self.board = Board(self, self.deck)
+        self.board = Board(self)
         self.board.grid(column=0, row=1, columnspan=3, sticky='news', padx=40)
+
+        self.contoller        = Controller(self, self.board, self.deck)
+        self.deck.controller  = self.contoller
+        self.board.controller = self.contoller
+
+        self.board.load_coins()
+        self.board.load_cards()
+        self.board.load_faces()
         
         while not win:            
             for player in self.players:
-                self.deck.player = self.board.player = player
+                self.contoller.player = player
                 player.can_claim_face = True
                 
-                self.deck.load_cards()
-                self.deck.load_coins()
+                self.deck.load_cards(player)
+                self.deck.load_coins(player)
                 
-                self.mode = Mode.IDLE
-                self.board.set_mode(Mode.IDLE)
+                self.contoller.set_mode(Mode.IDLE)
                 
-                self.round_over.set(value=False)
-                self.wait_variable(self.round_over)
+                self.round_ended.set(value=False)
+                self.wait_variable(self.round_ended)
                 
-                if player.score >= 15 :
-                    win = True
+                if player.score >= 15 : win = True
         
         self.game_end()
     
 
     def game_end(self):
 
-        self.board.destroy()
         self.deck.destroy()
+        self.board.destroy()
         self.score.destroy()
         
         winners = [self.players[0]]
@@ -145,7 +116,7 @@ class SplendorApp(ctk.CTk):
     def safe_exit(self):
 
         try:
-            self.round_over.set(value=True)
+            self.round_ended.set(value=True)
         except Exception:
             pass
 

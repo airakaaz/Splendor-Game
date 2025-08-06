@@ -1,3 +1,4 @@
-from .face  import Face
-from .pack  import Pack
-from .card  import Card
+from .face import Face
+from .pack import Pack
+from .card import Card
+from .coin import Coin

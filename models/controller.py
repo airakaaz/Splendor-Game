@@ -1,0 +1,244 @@
+import customtkinter as ctk
+from utils    import Mode, COLORS, MAIN_FONT, FACES
+from utils    import clear_children, import_cards
+from elements import Card, Coin
+from random   import choice
+
+class Controller():
+
+    def __init__(self, master, board, deck):
+        
+        self.master   = master
+        self.board    = board
+        self.deck     = deck
+
+        self.player   = None
+        self.mode     = None
+        self.wishlist = None
+
+        self.action_frame = self.board.action_frame
+        self.header = ctk.CTkLabel(self.action_frame, text='', font=(MAIN_FONT, 32))
+        self.header.grid(column=0, row=0)
+        self.middle_frame = ctk.CTkFrame(self.action_frame, fg_color='transparent')
+        self.bottom_frame = ctk.CTkFrame(self.action_frame, fg_color='transparent')
+        
+        # initiating coins
+        self.coins = [2, 2, 2, 2, 2, 5]
+        if len(self.master.players) == 4:
+            for i in range(5): self.coins[i] = 7
+        else:
+            for i in range(5): self.coins[i] += len(self.master.players)
+        
+        # initiating table memory
+        self.table_memory = [[], [], [], []]
+        self.cards = import_cards()
+        self.faces = FACES
+
+        for r in range(3):
+            for x in range(4):
+                c = choice(self.cards[r])
+                self.table_memory[r].append(c)
+                self.cards[r].remove(c)
+        
+        for i in range(1+len(self.master.players)):
+            f = choice(self.faces)
+            self.table_memory[-1].append(f)
+            self.faces.remove(f)
+
+
+    def set_mode(self, mode):
+
+        def buy_mode(title):
+
+            self.header.configure(text=title)
+            
+            self.middle_frame.grid(column=0, row=1, sticky='ew', padx=10, pady=10)
+            self.bottom_frame.grid(column=0, row=2, sticky='s', padx=10, pady=10)
+            
+            self.cancel_btn = ctk.CTkButton(self.bottom_frame, text='cancel', font=(MAIN_FONT, 22), command=self.wishlist_cancel)
+            self.cancel_btn.pack(side='left', padx=10, anchor='s')
+            self.confirm_btn = ctk.CTkButton(self.bottom_frame, text='confirm', font=(MAIN_FONT, 22), command=self.wishlist_confirm)
+            self.confirm_btn.pack(side='left', padx=10, anchor='s')
+        
+
+        clear_children(self.middle_frame)
+        clear_children(self.bottom_frame)
+        
+        self.mode = mode
+
+        match mode:
+            case Mode.IDLE:
+                self.header.configure(text='')
+                self.master.header.configure(text=f'{self.player.name}\'s turn')
+                self.master.score.configure(text=f'score : {self.player.score}')
+                self.board.load_coins()
+                
+                self.bottom_frame.grid(column=0, row=2, sticky='s', padx=10, pady=10)
+                self.skip_btn = ctk.CTkButton(self.bottom_frame, text='skip turn', state='enabled', font=(MAIN_FONT, 22), command=self.end_of_turn)
+                self.skip_btn.pack(side='left', padx=10, anchor='s')
+                # try : self.master.after(2000, lambda: self.skip_btn.configure(state='enabled'))
+                # except Exception : pass
+                
+            case Mode.GET_COINS:
+                buy_mode('get tokens ?')
+                
+                self.wishlist = []
+            
+            case Mode.GET_CARD:
+                buy_mode('buy card ?')
+
+                self.wishlist = None
+            
+            case Mode.RESERVE_CARD:
+                buy_mode('reserve card ?')
+                
+                self.board.load_coins()
+                Coin(self.middle_frame, self, 5, in_action=True).pack(pady=30)
+                self.confirm_btn.configure(state='disabled')
+                self.wishlist = None
+                
+            case Mode.END_OF_TURN:
+                self.master.score.configure(text=f'score : {self.player.score}')
+                self.header.configure(text='turn ended')
+                
+                self.bottom_frame.grid(column=0, row=2, sticky='s', padx=10, pady=10)
+                self.next_btn = ctk.CTkButton(self.bottom_frame, text='next', font=(MAIN_FONT, 22), command=self.end_of_turn)
+                self.next_btn.pack(side='left', padx=10, anchor='s')
+                
+                self.board.load_coins()
+                self.deck.load_coins(self.player)
+                self.deck.load_cards(self.player)
+            
+
+    def wishlist_add(self, item):
+
+        match self.mode:
+            case Mode.GET_COINS:
+
+                def approve(coin):
+                    self.wishlist.append(Coin(self.middle_frame, self, coin.color, in_action=True))
+                    self.wishlist[-1].pack(pady=10)
+                    self.coins[coin.color] -= 1
+                    self.board.load_coins()
+                
+                if len(self.wishlist) + sum(self.player.coins) >= 10 : return
+                
+                full = False
+                
+                if len(self.wishlist) == 2 :
+                    full = (self.wishlist[0].color == self.wishlist[1].color)
+                
+                if len(self.wishlist) < 3 and not full:
+                    if self.coins[item.color] > 0 :
+                        if item.color not in [coin.color for coin in self.wishlist]:
+                            approve(item)
+                        elif len(self.wishlist) == 1 :
+                            if self.coins[item.color] > 2 :
+                                approve(item)
+            
+            case _:
+                self.picked = item
+                self.wishlist = Card(self.middle_frame, self, item.origin)
+                self.picked.grid_remove()
+                self.wishlist.pack()
+                self.confirm_btn.configure(state='enabled')
+
+                #show coins to be deduced from the player's balance
+                if self.mode == Mode.GET_CARD:
+                    for i in range(6):
+                        k = 0
+                        if i>2 : k=3
+                        if self.price[i] != 0 :
+                            ctk.CTkLabel(self.deck.coins_frame, text=f'-{self.price[i]}',text_color=COLORS[i][0], font=(MAIN_FONT, 22)).grid(column=0+k, row=i%3)
+    
+
+    def wishlist_remove(self, coin):
+
+        self.coins[coin.color] += 1
+        self.board.load_coins()
+        
+        self.wishlist.remove(coin)
+        coin.destroy()
+        
+        if self.wishlist == []:
+            self.set_mode(Mode.IDLE)
+
+
+    def wishlist_cancel(self, force=False):
+
+        match self.mode:
+            case Mode.GET_COINS:
+                wishlist_buffer = self.wishlist[:]
+                for item in wishlist_buffer:
+                    self.wishlist_remove(item)
+            
+            case Mode.GET_CARD:
+                if not self.wishlist.reserved:
+                    self.board.add_card(self.picked)
+                else:
+                    self.deck.load_cards()
+                
+                self.deck.load_coins()
+                self.wishlist = None
+            
+            case Mode.RESERVE_CARD:
+                if self.wishlist != None :
+                    self.board.add_card(self.picked)
+                    self.wishlist.destroy()
+                    self.wishlist = None
+                    if force:
+                        self.coins[-1] += 1
+                    else:
+                        return
+                
+                else:
+                    self.coins[-1] += 1
+
+        self.set_mode(Mode.IDLE)
+        
+
+    def wishlist_confirm(self):
+
+        def replace_card(card):
+
+            x, rank = card.x, card.rank
+
+            if not card.reserved :
+                c = choice(self.cards[rank])
+
+                self.cards[rank].remove(c)
+                self.board.add_card(c, x, rank)
+                self.table_memory[rank][x-2] = self.board.table_cards[rank][x-2].origin
+                self.board.packs[rank].count_update()
+            
+            else:
+                self.player.reserved.pop(x)
+        
+        match self.mode:
+            case Mode.GET_COINS:
+                for item in self.wishlist:
+                    self.player.coins[item.color] += 1
+            
+            case Mode.GET_CARD:
+                self.player.add_card(self.wishlist.origin)
+                try:
+                    replace_card(self.wishlist)
+                except Exception:
+                    self.table_memory[self.wishlist.rank][self.wishlist.x-2] = None
+                
+                for i in range(6):
+                    self.coins[i] += self.price[i]
+                    self.player.coins[i] -= self.price[i]
+            
+            case Mode.RESERVE_CARD:
+                self.player.coins[-1] += 1
+                self.player.reserved.append(self.wishlist.origin)
+                replace_card(self.wishlist)
+                
+        self.wishlist = None
+        self.picked   = None
+        self.set_mode(Mode.END_OF_TURN)
+
+
+    def end_of_turn(self):
+        self.master.round_ended.set(True)
