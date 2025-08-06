@@ -71,7 +71,7 @@ class Controller():
                 self.header.configure(text='')
                 self.master.header.configure(text=f'{self.player.name}\'s turn')
                 self.master.score.configure(text=f'score : {self.player.score}')
-                self.board.load_coins()
+                self.board.update_coins()
                 
                 self.bottom_frame.grid(column=0, row=2, sticky='s', padx=10, pady=10)
                 self.skip_btn = ctk.CTkButton(self.bottom_frame, text='skip turn', state='enabled', font=(MAIN_FONT, 22), command=self.end_of_turn)
@@ -92,7 +92,7 @@ class Controller():
             case Mode.RESERVE_CARD:
                 buy_mode('reserve card ?')
                 
-                self.board.load_coins()
+                self.board.update_coins()
                 Coin(self.middle_frame, self, 5, in_action=True).pack(pady=30)
                 self.confirm_btn.configure(state='disabled')
                 self.wishlist = None
@@ -105,7 +105,7 @@ class Controller():
                 self.next_btn = ctk.CTkButton(self.bottom_frame, text='next', font=(MAIN_FONT, 22), command=self.end_of_turn)
                 self.next_btn.pack(side='left', padx=10, anchor='s')
                 
-                self.board.load_coins()
+                self.board.update_coins()
                 self.deck.load_coins(self.player)
                 self.deck.load_cards(self.player)
             
@@ -119,7 +119,7 @@ class Controller():
                     self.wishlist.append(Coin(self.middle_frame, self, coin.color, in_action=True))
                     self.wishlist[-1].pack(pady=10)
                     self.coins[coin.color] -= 1
-                    self.board.load_coins()
+                    self.board.update_coins()
                 
                 if len(self.wishlist) + sum(self.player.coins) >= 10 : return
                 
@@ -153,7 +153,7 @@ class Controller():
     def wishlist_remove(self, coin):
 
         self.coins[coin.color] += 1
-        self.board.load_coins()
+        self.board.update_coins()
         
         self.wishlist.remove(coin)
         coin.destroy()

@@ -3,7 +3,7 @@ from utils import COIN_DIAMETER, COLORS, Mode
 
 class Coin(ctk.CTkFrame):
 
-    def __init__(self, parent, controller, color, active=True, in_action=False):
+    def __init__(self, parent, controller, color, in_action=False):
 
         super().__init__(parent)
         self.controller = controller
@@ -12,7 +12,7 @@ class Coin(ctk.CTkFrame):
         self.in_action = in_action
 
         self.configure(fg_color=COLORS[color][0], width=COIN_DIAMETER, height=COIN_DIAMETER, corner_radius=100)
-        if active : self.bind('<Button-1>', self.coin_click)
+        if controller is not None : self.bind('<Button-1>', self.coin_click)
 
 
     def coin_click(self, event):

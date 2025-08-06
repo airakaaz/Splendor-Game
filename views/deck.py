@@ -35,7 +35,7 @@ class Deck(ctk.CTkFrame):
         self.coin_labels = [[], []]
         for i in range(6):
             k = 0 if i<3 else 3
-            Coin(self.coins_frame, self.controller, i, active=False).grid(column=1+k, row=i%3)
+            Coin(self.coins_frame, None, i).grid(column=1+k, row=i%3)
             self.coin_labels[0].append(ctk.CTkLabel(self.coins_frame, text='', font=(MAIN_FONT, 22), text_color=COLORS[i][0]))
             self.coin_labels[0][-1].grid(column=2+k, row=i%3)
             self.coin_labels[1].append(ctk.CTkLabel(self.coins_frame, text='', font=(MAIN_FONT, 22), text_color=COLORS[i][0]))

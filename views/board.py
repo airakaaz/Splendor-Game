@@ -75,12 +75,13 @@ class Board(ctk.CTkFrame):
 
     def load_coins(self):
 
-        clear_children(self.coins_frame)
         self.coins = []
+        for color in range(6):
+            Coin(self.coins_frame, self.controller, color).grid(column=1, row=color)
+            self.coins.append(ctk.CTkLabel(self.coins_frame, text=self.controller.coins[color], font=(MAIN_FONT, 22), text_color=COLORS[color][0]))
+            self.coins[-1].grid(column=2, row=color)
+
+    def update_coins(self):
 
         for color in range(6):
-            self.coins.append([])
-            self.coins[color].append(Coin(self.coins_frame, self.controller, color))
-            self.coins[color].append(ctk.CTkLabel(self.coins_frame, text=self.controller.coins[color], font=(MAIN_FONT, 22), text_color=COLORS[color][0]))
-            self.coins[color][0].grid(column=1, row=color)
-            self.coins[color][1].grid(column=2, row=color)
+            self.coins[color].configure(text=self.controller.coins[color])
