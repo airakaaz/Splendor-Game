@@ -36,7 +36,7 @@ class Deck(ctk.CTkFrame):
     def load_cards(self, player):
 
         clear_grid(self.cards_frame)
-        clear_children(self.reserved_frame)
+        clear_grid(self.reserved_frame)
 
         for suit in player.cards:
             for card in suit:
@@ -47,10 +47,8 @@ class Deck(ctk.CTkFrame):
             Face(self.cards_frame, self.controller.board, face, owned=True).grid(column=0, row=0, sticky='n', pady=pad)
             pad += 50
         
-        self.reserved = []
         for i, card in enumerate(player.reserved):
-            self.reserved.append(Card(self.reserved_frame, self.controller, card, i, reserved=True))
-            self.reserved[-1].grid(column=0, row=0, sticky='nw', padx=30+i*55, pady=40+i*52)
+            card.grid(column=0, row=0, sticky='nw', padx=30+i*55, pady=40+i*52)
 
 
     def load_coins(self, player):

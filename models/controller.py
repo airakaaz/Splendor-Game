@@ -201,9 +201,9 @@ class Controller():
 
         def replace_card(card):
 
-            x, rank = card.x, card.rank
-
             if not card.reserved :
+                x = card.x
+                rank = card.rank
                 c = choice(self.cards[rank])
 
                 self.cards[rank].remove(c)
@@ -212,7 +212,7 @@ class Controller():
                 self.board.packs[rank].count_update()
             
             else:
-                self.player.reserved.pop(x)
+                self.player.reserved.remove(card)
         
         match self.mode:
             case Mode.GET_COINS:
@@ -233,8 +233,9 @@ class Controller():
                     self.player.coins[i] -= self.price[i]
             
             case Mode.RESERVE_CARD:
+                card = Card(self.deck.reserved_frame, self, self.wishlist.origin, reserved=True)
                 self.player.coins[-1] += 1
-                self.player.reserved.append(self.wishlist.origin)
+                self.player.reserved.append(card)
                 replace_card(self.picked)
                 
         self.wishlist = None
