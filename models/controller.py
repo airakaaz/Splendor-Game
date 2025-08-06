@@ -222,9 +222,9 @@ class Controller():
             case Mode.GET_CARD:
                 self.player.add_card(self.wishlist.origin)
                 try:
-                    replace_card(self.wishlist)
+                    replace_card(self.picked)
                 except Exception:
-                    self.table_memory[self.wishlist.rank][self.wishlist.x-2] = None
+                    self.table_memory[self.picked.rank][self.picked.x-2] = None
                 
                 for i in range(6):
                     self.coins[i] += self.price[i]
@@ -233,7 +233,7 @@ class Controller():
             case Mode.RESERVE_CARD:
                 self.player.coins[-1] += 1
                 self.player.reserved.append(self.wishlist.origin)
-                replace_card(self.wishlist)
+                replace_card(self.picked)
                 
         self.wishlist = None
         self.picked   = None

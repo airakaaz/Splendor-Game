@@ -40,7 +40,7 @@ class Deck(ctk.CTkFrame):
 
         for i, suit in enumerate(player.cards):
             pad = 10
-            for j, c in suit:
+            for c in suit:
                 Card(self.cards_frame, self.controller, c, owned=True).grid(column=i+1, row=0, sticky='n', pady=pad)
                 pad += 50
         
