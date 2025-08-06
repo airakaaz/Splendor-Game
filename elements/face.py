@@ -3,12 +3,12 @@ from utils import MAIN_FONT, COLORS
 
 class Face(ctk.CTkFrame):
 
-    def __init__(self, parent, controller, values, i=None, owned=False):
+    def __init__(self, parent, controller, values, index=None, owned=False):
 
         super().__init__(parent)
         self.controller = controller
         self.origin = self.price = values
-        self.index = i
+        self.index = index
         
         self.grid_propagate(False)
         self.configure(height=90, width=90, border_width=5, border_color='white', fg_color='silver')
@@ -19,9 +19,9 @@ class Face(ctk.CTkFrame):
         price_frame.grid(column=0, row=1, pady=5)
         
         k = 0
-        for i, n in enumerate(values) :
+        for index, n in enumerate(values) :
             if n != 0 :
-                ctk.CTkLabel(price_frame, text=n, font=(MAIN_FONT, 18), text_color=COLORS[i][1], fg_color=COLORS[i][0], corner_radius=5).pack(side='left', padx=2)
+                ctk.CTkLabel(price_frame, text=n, font=(MAIN_FONT, 18), text_color=COLORS[index][1], fg_color=COLORS[index][0], corner_radius=5).pack(side='left', padx=2)
                 k += 1
         
         ctk.CTkLabel(self, text='3', font=(MAIN_FONT, 22), text_color='black').grid(column=0, row=0, columnspan=k, pady=3)
@@ -33,17 +33,14 @@ class Face(ctk.CTkFrame):
     def face_click(self, event):
 
         if self.controller.player.can_claim_face:
-            face = event.widget.master
-
             for i in range(5):
-                if face.origin[i] > len(self.controller.player.cards[i]):
+                if self.origin[i] > len(self.controller.player.cards[i]):
                     return
             
-            face.pack_forget()
-            self.controller.player.add_face(face.origin)
-            self.controller.master.table_memory[-1].pop(face.index)
-            self.controller.load_faces()
-            self.controller.deck.load_cards()
+            self.controller.player.add_face(self.origin)
+            self.controller.table_memory[-1].pop(self.index)
+            self.controller.deck.load_cards(self.controller.player)
+            self.destroy()
             
             self.controller.player.can_claim_face = False
-            self.controller.master.score.configure(text=f'score : {self.player.score}')
+            self.controller.master.score.configure(text=f'score : {self.controller.player.score}')

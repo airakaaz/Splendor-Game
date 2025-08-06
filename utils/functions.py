@@ -1,11 +1,7 @@
-import inspect
 import os.path
 
 def import_cards():
     
-    # file_name = inspect.getframeinfo(inspect.currentframe()).filename
-    # file_path = f'{os.path.dirname(os.path.abspath(file_name))}/../splendor_cards.csv'
-
     file_path = f"{os.path.dirname(os.path.dirname(__file__))}/assets/splendor_cards.csv"
 
     try:
@@ -24,3 +20,8 @@ def clear_children(parent):
     
     for child in parent.winfo_children():
         child.destroy()
+
+def bind_all_children(widget, event, function):
+    widget.bind(event, function)
+    for child in widget.winfo_children():
+        bind_all_children(child, event, function)
