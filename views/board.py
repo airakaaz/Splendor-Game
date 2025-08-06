@@ -1,6 +1,5 @@
 import customtkinter as ctk
 from elements import Card, Face, Pack, Coin
-from utils    import clear_children
 from utils    import MAIN_FONT, COLORS
 from utils    import Mode
 

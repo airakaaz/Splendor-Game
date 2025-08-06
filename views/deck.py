@@ -1,6 +1,6 @@
 import customtkinter as ctk
 from utils import MAIN_FONT, COLORS
-from utils import clear_grid
+from utils import clear_children
 from elements import Face, Coin
 
 class Deck(ctk.CTkFrame):
@@ -44,8 +44,8 @@ class Deck(ctk.CTkFrame):
 
     def load_cards(self, player):
 
-        clear_grid(self.cards_frame)
-        clear_grid(self.reserved_frame)
+        clear_children(self.cards_frame)
+        clear_children(self.reserved_frame)
 
         for suit in player.cards:
             for card in suit:
