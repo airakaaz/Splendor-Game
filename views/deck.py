@@ -1,6 +1,6 @@
 import customtkinter as ctk
 from utils import MAIN_FONT, COLORS, COIN_DIAMETER
-from utils import clear_children
+from utils import clear_children, clear_grid
 from elements import Card, Face
 
 class Deck(ctk.CTkFrame):
@@ -35,14 +35,12 @@ class Deck(ctk.CTkFrame):
 
     def load_cards(self, player):
 
-        clear_children(self.cards_frame)
+        clear_grid(self.cards_frame)
         clear_children(self.reserved_frame)
 
-        for i, suit in enumerate(player.cards):
-            pad = 10
-            for c in suit:
-                Card(self.cards_frame, self.controller, c, owned=True).grid(column=i+1, row=0, sticky='n', pady=pad)
-                pad += 50
+        for suit in player.cards:
+            for card in suit:
+                card.grid()
         
         pad = 10
         for face in player.faces:
@@ -50,8 +48,8 @@ class Deck(ctk.CTkFrame):
             pad += 50
         
         self.reserved = []
-        for i, c in enumerate(player.reserved):
-            self.reserved.append(Card(self.reserved_frame, self.controller, c, i, reserved=True))
+        for i, card in enumerate(player.reserved):
+            self.reserved.append(Card(self.reserved_frame, self.controller, card, i, reserved=True))
             self.reserved[-1].grid(column=0, row=0, sticky='nw', padx=30+i*55, pady=40+i*52)
 
 

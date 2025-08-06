@@ -220,7 +220,9 @@ class Controller():
                     self.player.coins[item.color] += 1
             
             case Mode.GET_CARD:
-                self.player.add_card(self.wishlist.origin)
+                card = Card(self.deck.cards_frame, self, self.wishlist.origin, owned=True)
+                card.grid(column=card.color+1, row=0, sticky='n', pady=10+50*len(self.player.cards[card.color]))
+                self.player.add_card(card)
                 try:
                     replace_card(self.picked)
                 except Exception:

@@ -12,8 +12,8 @@ class Player():
     
     def add_card(self, card):
 
-        self.cards[card[1]].append(card)
-        self.score += card[7]
+        self.cards[card.color].append(card)
+        self.score += card.points
     
 
     def add_face(self, face):

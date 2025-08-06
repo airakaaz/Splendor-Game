@@ -21,6 +21,11 @@ def clear_children(parent):
     for child in parent.winfo_children():
         child.destroy()
 
+def clear_grid(parent):
+    
+    for child in parent.winfo_children():
+        child.grid_remove()
+
 def bind_all_children(widget, event, function):
     widget.bind(event, function)
     for child in widget.winfo_children():
