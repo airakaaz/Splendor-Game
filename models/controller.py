@@ -149,7 +149,7 @@ class Controller():
                 if self.mode == Mode.GET_CARD:
                     for i in range(6):
                         if self.price[i] != 0 :
-                            self.deck.coin_labels[1].configure(text=f'-{self.price[i]}')
+                            self.deck.coin_labels[1][i].configure(text=f'-{self.price[i]}')
     
 
     def wishlist_remove(self, coin):
