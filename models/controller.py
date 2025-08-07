@@ -189,6 +189,7 @@ class Controller():
                     if force:
                         self.coins[-1] += 1
                     else:
+                        self.button_2.configure(state='disabled')
                         return
                 
                 else:
