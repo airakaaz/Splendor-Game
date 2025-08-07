@@ -12,7 +12,7 @@ class Coin(ctk.CTkFrame):
         self.in_action = in_action
 
         self.configure(fg_color=COLORS[color][0], width=COIN_DIAMETER, height=COIN_DIAMETER, corner_radius=100)
-        self.bind('<Button-1>', self.coin_click)
+        if controller is not None : self.bind('<Button-1>', self.coin_click)
 
 
     def coin_click(self, event):

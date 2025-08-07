@@ -1,5 +1,5 @@
 import customtkinter as ctk
-from utils    import Mode, COLORS, MAIN_FONT, FACES
+from utils    import Mode, MAIN_FONT, FACES
 from utils    import clear_children, import_cards
 from elements import Card, Coin
 from random   import choice
@@ -17,10 +17,17 @@ class Controller():
         self.wishlist = None
 
         self.action_frame = self.board.action_frame
+
         self.header = ctk.CTkLabel(self.action_frame, text='', font=(MAIN_FONT, 32))
         self.header.grid(column=0, row=0)
+
         self.middle_frame = ctk.CTkFrame(self.action_frame, fg_color='transparent')
+        self.middle_frame.grid(column=0, row=1, sticky='ew', padx=10, pady=10)
         self.bottom_frame = ctk.CTkFrame(self.action_frame, fg_color='transparent')
+        self.bottom_frame.grid(column=0, row=2, sticky='s', padx=10, pady=10)
+        
+        self.button_1 = ctk.CTkButton(self.bottom_frame, text='', font=(MAIN_FONT, 22))
+        self.button_2 = ctk.CTkButton(self.bottom_frame, text='', font=(MAIN_FONT, 22))
         
         # initiating coins
         self.coins = [2, 2, 2, 2, 2, 5]
@@ -52,16 +59,13 @@ class Controller():
 
             self.header.configure(text=title)
             
-            self.middle_frame.grid(column=0, row=1, sticky='ew', padx=10, pady=10)
-            self.bottom_frame.grid(column=0, row=2, sticky='s', padx=10, pady=10)
-            
-            self.cancel_btn = ctk.CTkButton(self.bottom_frame, text='cancel', font=(MAIN_FONT, 22), command=self.wishlist_cancel)
-            self.cancel_btn.pack(side='left', padx=10, anchor='s')
-            self.confirm_btn = ctk.CTkButton(self.bottom_frame, text='confirm', font=(MAIN_FONT, 22), command=self.wishlist_confirm)
-            self.confirm_btn.pack(side='left', padx=10, anchor='s')
-        
+            self.button_1.configure(text='cancel', command=self.wishlist_cancel)
+            self.button_1.grid(column=0, row=0, padx=10, sticky='s')
 
-        clear_children(self.middle_frame)
+            self.button_2.configure(text='confirm', command=self.wishlist_confirm)
+            self.button_2.grid(column=1, row=0, padx=10, sticky='s')
+        
+        clear_children(self.middle_frame, destr=True)
         clear_children(self.bottom_frame)
         
         self.mode = mode
@@ -71,11 +75,10 @@ class Controller():
                 self.header.configure(text='')
                 self.master.header.configure(text=f'{self.player.name}\'s turn')
                 self.master.score.configure(text=f'score : {self.player.score}')
-                self.board.load_coins()
+                self.board.update_coins()
                 
-                self.bottom_frame.grid(column=0, row=2, sticky='s', padx=10, pady=10)
-                self.skip_btn = ctk.CTkButton(self.bottom_frame, text='skip turn', state='enabled', font=(MAIN_FONT, 22), command=self.end_of_turn)
-                self.skip_btn.pack(side='left', padx=10, anchor='s')
+                self.button_1.configure(text='skip turn', command=self.end_of_turn)
+                self.button_1.grid(column=0, row=0, padx=10, sticky='s')
                 # try : self.master.after(2000, lambda: self.skip_btn.configure(state='enabled'))
                 # except Exception : pass
                 
@@ -92,20 +95,19 @@ class Controller():
             case Mode.RESERVE_CARD:
                 buy_mode('reserve card ?')
                 
-                self.board.load_coins()
+                self.board.update_coins()
                 Coin(self.middle_frame, self, 5, in_action=True).pack(pady=30)
-                self.confirm_btn.configure(state='disabled')
+                self.button_2.configure(state='disabled')
                 self.wishlist = None
                 
             case Mode.END_OF_TURN:
                 self.master.score.configure(text=f'score : {self.player.score}')
                 self.header.configure(text='turn ended')
                 
-                self.bottom_frame.grid(column=0, row=2, sticky='s', padx=10, pady=10)
-                self.next_btn = ctk.CTkButton(self.bottom_frame, text='next', font=(MAIN_FONT, 22), command=self.end_of_turn)
-                self.next_btn.pack(side='left', padx=10, anchor='s')
+                self.button_1.configure(text='next', command=self.end_of_turn)
+                self.button_1.grid(column=0, row=0, padx=10, sticky='s')
                 
-                self.board.load_coins()
+                self.board.update_coins()
                 self.deck.load_coins(self.player)
                 self.deck.load_cards(self.player)
             
@@ -119,7 +121,7 @@ class Controller():
                     self.wishlist.append(Coin(self.middle_frame, self, coin.color, in_action=True))
                     self.wishlist[-1].pack(pady=10)
                     self.coins[coin.color] -= 1
-                    self.board.load_coins()
+                    self.board.update_coins()
                 
                 if len(self.wishlist) + sum(self.player.coins) >= 10 : return
                 
@@ -136,26 +138,24 @@ class Controller():
                             if self.coins[item.color] > 2 :
                                 approve(item)
             
-            case _:
+            case Mode.GET_CARD | Mode.RESERVE_CARD:
                 self.picked = item
                 self.wishlist = Card(self.middle_frame, self, item.origin)
                 self.picked.grid_remove()
                 self.wishlist.pack()
-                self.confirm_btn.configure(state='enabled')
+                self.button_2.configure(state='enabled')
 
                 #show coins to be deduced from the player's balance
                 if self.mode == Mode.GET_CARD:
                     for i in range(6):
-                        k = 0
-                        if i>2 : k=3
                         if self.price[i] != 0 :
-                            ctk.CTkLabel(self.deck.coins_frame, text=f'-{self.price[i]}',text_color=COLORS[i][0], font=(MAIN_FONT, 22)).grid(column=0+k, row=i%3)
+                            self.deck.coin_labels[1][i].configure(text=f'-{self.price[i]}')
     
 
     def wishlist_remove(self, coin):
 
         self.coins[coin.color] += 1
-        self.board.load_coins()
+        self.board.update_coins()
         
         self.wishlist.remove(coin)
         coin.destroy()
@@ -178,7 +178,7 @@ class Controller():
                 else:
                     self.deck.load_cards()
                 
-                self.deck.load_coins()
+                self.deck.load_coins(self.player)
                 self.wishlist = None
             
             case Mode.RESERVE_CARD:
@@ -201,9 +201,9 @@ class Controller():
 
         def replace_card(card):
 
-            x, rank = card.x, card.rank
-
             if not card.reserved :
+                x = card.x
+                rank = card.rank
                 c = choice(self.cards[rank])
 
                 self.cards[rank].remove(c)
@@ -212,7 +212,7 @@ class Controller():
                 self.board.packs[rank].count_update()
             
             else:
-                self.player.reserved.pop(x)
+                self.player.reserved.remove(card)
         
         match self.mode:
             case Mode.GET_COINS:
@@ -220,7 +220,9 @@ class Controller():
                     self.player.coins[item.color] += 1
             
             case Mode.GET_CARD:
-                self.player.add_card(self.wishlist.origin)
+                card = Card(self.deck.cards_frame, self, self.wishlist.origin, owned=True)
+                card.grid(column=card.color+1, row=0, sticky='n', pady=10+50*len(self.player.cards[card.color]))
+                self.player.add_card(card)
                 try:
                     replace_card(self.picked)
                 except Exception:
@@ -231,8 +233,9 @@ class Controller():
                     self.player.coins[i] -= self.price[i]
             
             case Mode.RESERVE_CARD:
+                card = Card(self.deck.reserved_frame, self, self.wishlist.origin, reserved=True)
                 self.player.coins[-1] += 1
-                self.player.reserved.append(self.wishlist.origin)
+                self.player.reserved.append(card)
                 replace_card(self.picked)
                 
         self.wishlist = None

@@ -3,7 +3,7 @@ from utils import MAIN_FONT, COLORS
 
 class Face(ctk.CTkFrame):
 
-    def __init__(self, parent, controller, values, index=None, owned=False):
+    def __init__(self, parent, controller, values, index=None):
 
         super().__init__(parent)
         self.controller = controller
@@ -26,7 +26,7 @@ class Face(ctk.CTkFrame):
         
         ctk.CTkLabel(self, text='3', font=(MAIN_FONT, 22), text_color='black').grid(column=0, row=0, columnspan=k, pady=3)
         
-        if not owned:
+        if controller is not None:
             self.bind('<Button-1>', self.face_click)
         
 
@@ -37,9 +37,12 @@ class Face(ctk.CTkFrame):
                 if self.origin[i] > len(self.controller.player.cards[i]):
                     return
             
-            self.controller.player.add_face(self.origin)
-            self.controller.table_memory[-1].pop(self.index)
+            face = Face(self.controller.deck.cards_frame, None, self.origin)
+            face.grid(column=0, row=0, sticky='n', pady=10+50*len(self.controller.player.faces))
+            self.controller.player.add_face(face)
+            self.controller.table_memory[-1].remove(self.origin)
             self.controller.deck.load_cards(self.controller.player)
+            self.controller.board.faces_frame.rowconfigure(self.index, weight=0)
             self.destroy()
             
             self.controller.player.can_claim_face = False

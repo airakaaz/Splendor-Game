@@ -16,10 +16,16 @@ def import_cards():
         print(f"failed to import cards, error :{e}")
         exit()
 
-def clear_children(parent):
+def clear_children(parent, destr=False):
     
     for child in parent.winfo_children():
-        child.destroy()
+        if destr:
+            child.destroy()
+        else:
+            try:
+                child.grid_remove()
+            except Exception:
+                child.pack_forget()
 
 def bind_all_children(widget, event, function):
     widget.bind(event, function)

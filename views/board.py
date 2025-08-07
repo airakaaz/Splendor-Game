@@ -1,6 +1,5 @@
 import customtkinter as ctk
 from elements import Card, Face, Pack, Coin
-from utils    import clear_children
 from utils    import MAIN_FONT, COLORS
 from utils    import Mode
 
@@ -29,7 +28,8 @@ class Board(ctk.CTkFrame):
         self.cards_frame.columnconfigure((1,2,3,4,5), weight=2, uniform='a')
         
         self.faces_frame = ctk.CTkFrame(self.cards_frame, fg_color='transparent')
-        self.faces_frame.grid(column=0, row=0, rowspan=3)
+        self.faces_frame.columnconfigure(0, weight=1)
+        self.faces_frame.grid(column=0, row=0, rowspan=3, sticky="ns", pady=5)
         
         self.action_frame = ctk.CTkFrame(self, )
         self.action_frame.grid(column=0, row=0, sticky='news', padx=20, pady=10)
@@ -51,7 +51,6 @@ class Board(ctk.CTkFrame):
     def load_cards(self):
 
         self.packs = []
-
         for x in range(3):
             self.packs.append(Pack(self.cards_frame, self.controller, x, len(self.controller.cards[x])))
             self.packs[x].grid(column=1, row=x)
@@ -66,21 +65,21 @@ class Board(ctk.CTkFrame):
     def load_faces(self):
 
         self.table_faces = []
-
-        pad = 3 + 10 * (5-len(self.controller.table_memory[-1]))
-        for i,face in enumerate(self.controller.table_memory[-1]):
+        for i, face in enumerate(self.controller.table_memory[-1]):
+            self.faces_frame.rowconfigure(i, weight=1)
             self.table_faces.append(Face(self.faces_frame, self.controller, face, i))
-            self.table_faces[-1].pack(pady=pad)
+            self.table_faces[-1].grid(column=0, row=i)
 
 
     def load_coins(self):
 
-        clear_children(self.coins_frame)
         self.coins = []
+        for color in range(6):
+            Coin(self.coins_frame, self.controller, color).grid(column=1, row=color)
+            self.coins.append(ctk.CTkLabel(self.coins_frame, text=self.controller.coins[color], font=(MAIN_FONT, 22), text_color=COLORS[color][0]))
+            self.coins[-1].grid(column=2, row=color)
+
+    def update_coins(self):
 
         for color in range(6):
-            self.coins.append([])
-            self.coins[color].append(Coin(self.coins_frame, self.controller, color))
-            self.coins[color].append(ctk.CTkLabel(self.coins_frame, text=self.controller.coins[color], font=(MAIN_FONT, 22), text_color=COLORS[color][0]))
-            self.coins[color][0].grid(column=1, row=color)
-            self.coins[color][1].grid(column=2, row=color)
+            self.coins[color].configure(text=self.controller.coins[color])
