@@ -51,10 +51,8 @@ class Deck(ctk.CTkFrame):
             for card in suit:
                 card.grid()
         
-        pad = 10
         for face in player.faces:
-            Face(self.cards_frame, self.controller.board, face, owned=True).grid(column=0, row=0, sticky='n', pady=pad)
-            pad += 50
+            face.grid()
         
         for i, card in enumerate(player.reserved):
             card.grid(column=0, row=0, sticky='nw', padx=30+i*55, pady=40+i*52)
