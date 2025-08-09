@@ -64,6 +64,10 @@ class Controller():
 
             self.button_2.configure(text='confirm', command=self.wishlist_confirm)
             self.button_2.grid(column=1, row=0, padx=10, sticky='s')
+
+            if self.mode == Mode.RESERVE_CARD:
+                Coin(self.middle_frame, self, 5, in_action=True).pack(pady=30)
+                self.button_2.configure(state='disabled')
         
         clear_children(self.middle_frame, destr=True)
         clear_children(self.bottom_frame)
@@ -84,20 +88,14 @@ class Controller():
                 
             case Mode.GET_COINS:
                 buy_mode('get tokens ?')
-                
                 self.wishlist = []
             
             case Mode.GET_CARD:
                 buy_mode('buy card ?')
-
                 self.wishlist = None
             
             case Mode.RESERVE_CARD:
                 buy_mode('reserve card ?')
-                
-                self.board.update_coins()
-                Coin(self.middle_frame, self, 5, in_action=True).pack(pady=30)
-                self.button_2.configure(state='disabled')
                 self.wishlist = None
                 
             case Mode.END_OF_TURN:

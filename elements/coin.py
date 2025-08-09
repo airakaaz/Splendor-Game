@@ -26,10 +26,10 @@ class Coin(ctk.CTkFrame):
                         self.controller.wishlist_add(self)
                         
                 elif self.color == 5 and self.controller.coins[self.color] > 0 and len(self.controller.player.reserved) < 3 :
-                    match self.controller.mode:
-                        case Mode.IDLE :
-                            self.controller.coins[-1] -= 1
-                            self.controller.set_mode(Mode.RESERVE_CARD)
+                    if self.controller.mode == Mode.IDLE :
+                        self.controller.coins[-1] -= 1
+                        self.controller.board.update_coins()
+                        self.controller.set_mode(Mode.RESERVE_CARD)
         
         else:
             if self.color != 5:
