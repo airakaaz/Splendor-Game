@@ -1,5 +1,6 @@
 import customtkinter as ctk
 from utils import MAIN_FONT, COLORS, RANKS, Mode
+from utils import bind_all_children
 
 
 class Card(ctk.CTkFrame):
@@ -36,7 +37,7 @@ class Card(ctk.CTkFrame):
         
         # making all the cards clickable except for owned ones
         if not owned:
-            self.bind('<Button-1>', self.card_click)
+            bind_all_children(self, '<Button-1>', self.card_click)
                 
 
     def card_click(self, event):

@@ -27,7 +27,6 @@ def clear_children(parent, destr=False):
             except Exception:
                 child.pack_forget()
 
-# to be implemented later for cards and faces
 def bind_all_children(widget, event, function):
     widget.bind(event, function)
     for child in widget.winfo_children():

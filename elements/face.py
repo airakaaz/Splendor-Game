@@ -1,5 +1,6 @@
 import customtkinter as ctk
 from utils import MAIN_FONT, COLORS
+from utils import bind_all_children
 
 class Face(ctk.CTkFrame):
 
@@ -29,7 +30,7 @@ class Face(ctk.CTkFrame):
         
         # making only the faces on the board clickable
         if controller is not None:
-            self.bind('<Button-1>', self.face_click)
+            bind_all_children(self, '<Button-1>', self.face_click)
         
 
     def face_click(self, event):
