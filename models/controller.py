@@ -104,6 +104,17 @@ class Controller():
                 checkout_mode('reserve card ?')
                 self.wishlist = None
             
+            case Mode.END_OF_TURN:
+                self.master.score.configure(text=f'score : {self.player.score}')
+                self.header.configure(text='turn ended')
+                
+                self.button_1.configure(text='next', command=self.end_of_turn)
+                self.button_1.grid(column=0, row=0, padx=10, sticky='s')
+                
+                self.board.update_coins()
+                self.deck.load_coins(self.player)
+                self.deck.load_cards(self.player)
+            
 
     def wishlist_add(self, item):
 
