@@ -28,5 +28,6 @@ class Pack(ctk.CTkFrame):
     def count_update(self):
 
         self.remaining.configure(text=len(self.controller.cards[self.rank]))
+        # hiding the pack when no cards are left in it
         if len(self.controller.cards[self.rank]) == 0 :
             self.destroy()

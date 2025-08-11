@@ -6,7 +6,7 @@ class Face(ctk.CTkFrame):
     def __init__(self, parent, controller, values, index=None):
 
         super().__init__(parent)
-        self.controller = controller
+        self.controller = controller # None if owned
         self.origin = self.price = values
         self.index = index
         
@@ -18,6 +18,7 @@ class Face(ctk.CTkFrame):
         price_frame = ctk.CTkFrame(self, fg_color='transparent')
         price_frame.grid(column=0, row=1, pady=5)
         
+        # adding price labels
         k = 0
         for index, n in enumerate(values) :
             if n != 0 :
@@ -26,13 +27,16 @@ class Face(ctk.CTkFrame):
         
         ctk.CTkLabel(self, text='3', font=(MAIN_FONT, 22), text_color='black').grid(column=0, row=0, columnspan=k, pady=3)
         
+        # making only the faces on the board clickable
         if controller is not None:
             self.bind('<Button-1>', self.face_click)
         
 
     def face_click(self, event):
 
+        # ensuring rule : player can claim 1 face card per round at most
         if self.controller.player.can_claim_face:
+            # returning if the player doesn't have enough cards to claim the face
             for i in range(5):
                 if self.origin[i] > len(self.controller.player.cards[i]):
                     return

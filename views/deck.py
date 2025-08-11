@@ -34,10 +34,13 @@ class Deck(ctk.CTkFrame):
 
         self.coin_labels = [[], []]
         for i in range(6):
+            # dividing deck coins into 2 columns
             k = 0 if i<3 else 3
             Coin(self.coins_frame, None, i).grid(column=1+k, row=i%3)
+            # labels for player balance
             self.coin_labels[0].append(ctk.CTkLabel(self.coins_frame, text='', font=(MAIN_FONT, 22), text_color=COLORS[i][0]))
             self.coin_labels[0][-1].grid(column=2+k, row=i%3)
+            #labels to show the price to be deduced
             self.coin_labels[1].append(ctk.CTkLabel(self.coins_frame, text='', font=(MAIN_FONT, 22), text_color=COLORS[i][0]))
             self.coin_labels[1][-1].grid(column=k, row=i%3)
         
@@ -46,6 +49,8 @@ class Deck(ctk.CTkFrame):
 
         clear_children(self.cards_frame)
         clear_children(self.reserved_frame)
+
+        # positions of the cards and faces were predetermined when appended to the player, now grid() is enough
 
         for suit in player.cards:
             for card in suit:

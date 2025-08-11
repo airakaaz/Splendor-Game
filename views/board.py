@@ -29,7 +29,7 @@ class Board(ctk.CTkFrame):
         
         self.faces_frame = ctk.CTkFrame(self.cards_frame, fg_color='transparent')
         self.faces_frame.columnconfigure(0, weight=1)
-        self.faces_frame.grid(column=0, row=0, rowspan=3, sticky="ns", pady=5)
+        self.faces_frame.grid(column=0, row=0, rowspan=3, sticky='ns', pady=5)
         
         self.action_frame = ctk.CTkFrame(self, )
         self.action_frame.grid(column=0, row=0, sticky='news', padx=20, pady=10)
@@ -40,8 +40,11 @@ class Board(ctk.CTkFrame):
 
     def add_card(self, c, x=None, rank=None):
 
+        # c is a Card object (c.x should not be None) : grid it into its position directly
         if type(c) == Card:
             c.grid(column=c.x, row=c.rank)
+        
+        # c is a card origin values (x and rank are given) : the Card object is created and placed accordingly
         else:
             card = Card(self.cards_frame, self.controller, c, x)
             card.grid(column=x, row=rank)
@@ -78,6 +81,7 @@ class Board(ctk.CTkFrame):
             Coin(self.coins_frame, self.controller, color).grid(column=1, row=color)
             self.coins.append(ctk.CTkLabel(self.coins_frame, text=self.controller.coins[color], font=(MAIN_FONT, 22), text_color=COLORS[color][0]))
             self.coins[-1].grid(column=2, row=color)
+
 
     def update_coins(self):
 
