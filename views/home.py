@@ -52,11 +52,24 @@ class Home(ctk.CTkFrame):
 
     def close_Home(self):
 
-        self.master.players = []
-        for e in self.entries:
-            name = self.entries[e].get()
+        names = []
+        for entry in self.entries:
+            name = self.entries[entry].get()
             if name != '':
-                self.master.players.append(Player(name))
+                i = 0
+                valid_name = name
+                # distinguishing duplicate names
+                while valid_name in names:
+                    i += 1
+                    valid_name = f'{name} {i}'
+                names.append(valid_name)
+        
+        # accounting for the 1 keystroke delay when updating the button state in case of deleted name
+        if len(names) < 2:
+            self.play_btn.configure(text='add players', state='disabled')
+            return
+        
+        self.master.players = [Player(name) for name in names]
         
         self.destroy()
         self.master.header.configure(text='')

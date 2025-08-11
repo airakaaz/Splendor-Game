@@ -195,6 +195,7 @@ class Controller():
                         self.coins[-1] += 1
                     # staying in the RESERVE_CARD mode after cancelling selection
                     else:
+                        self.button_2.configure(state='disabled')
                         return
                 
                 else:
