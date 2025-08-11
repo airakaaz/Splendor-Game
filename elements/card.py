@@ -67,7 +67,7 @@ class Card(ctk.CTkFrame):
                 validate_card()
 
             case Mode.GET_CARD:
-                if self.controller.wishlist.origin == self.origin:
+                if self == self.controller.wishlist:
                     self.controller.wishlist_cancel()
                 
                 else:
@@ -76,7 +76,7 @@ class Card(ctk.CTkFrame):
             case Mode.RESERVE_CARD:
                 if not self.reserved:
                     if self.controller.wishlist != None:
-                        if self.controller.wishlist.origin == self.origin:
+                        if self == self.controller.wishlist:
                             self.controller.wishlist_cancel()
                         
                         else:
