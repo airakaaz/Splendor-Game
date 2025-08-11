@@ -2,7 +2,7 @@ import os.path
 
 def import_cards():
     
-    file_path = f"{os.path.dirname(os.path.dirname(__file__))}/assets/splendor_cards.csv"
+    file_path = f'{os.path.dirname(os.path.dirname(__file__))}/assets/splendor_cards.csv'
 
     try:
         cards = [[],[],[]]
@@ -13,7 +13,7 @@ def import_cards():
                     cards[values[0]].append(values)
         return cards
     except Exception as e:
-        print(f"failed to import cards, error :{e}")
+        print(f'failed to import cards, error :{e}')
         exit()
 
 def clear_children(parent, destr=False):
@@ -27,6 +27,7 @@ def clear_children(parent, destr=False):
             except Exception:
                 child.pack_forget()
 
+# to be implemented later for cards and faces
 def bind_all_children(widget, event, function):
     widget.bind(event, function)
     for child in widget.winfo_children():

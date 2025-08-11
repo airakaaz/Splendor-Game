@@ -19,6 +19,8 @@ class Home(ctk.CTkFrame):
         self.entries_frame.grid(column=0, row=0, sticky='ns', ipadx=40, padx=40, pady=25)
         self.entries_frame.columnconfigure(0, weight=1)
         self.entries_frame.rowconfigure((0,1,2,3), weight=1)
+
+        # creating entries for players' names (4 players max)
         self.entries = {}
         for i in range(4):
             self.entries[i] = ctk.CTkEntry(self.entries_frame, width=360, height=40,font=(MAIN_FONT, 24), placeholder_text=f'player {i+1}')
@@ -31,11 +33,13 @@ class Home(ctk.CTkFrame):
 
     def update_button(self, event):
 
+        # conting non-empty entries
         n=0
         for i in range(4):
             if self.entries[i].get() != '' :
                 n +=1
         
+        # ensuring rule : minimum 2 players
         if n>1:
             if event.state == 20 and event.keycode == 36: # Ctrl + Enter
                 self.close_Home()

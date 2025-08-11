@@ -7,7 +7,7 @@ class Card(ctk.CTkFrame):
     def __init__(self, parent, controller, values, x=None, owned=False, reserved=False):
 
         super().__init__(parent)
-        self.controller = controller
+        self.controller = controller # None if owned
         self.reserved = reserved
         self.origin = values
         self.rank = values[0]
@@ -27,12 +27,14 @@ class Card(ctk.CTkFrame):
         ctk.CTkLabel(self, text=values[7], text_color=COLORS[self.color][0], font=(MAIN_FONT, 22)).grid(column=0, row=0)
         ctk.CTkFrame(self, fg_color=COLORS[self.color][0], corner_radius=50).grid(column=1, row=0, pady=10, padx=10)
         
+        # adding price labels from the bottom up
         k=4
         for i, p in enumerate(self.price):
             if self.price[i] > 0:
                 ctk.CTkLabel(self, text=p, text_color=COLORS[i][1], font=(MAIN_FONT, 22), fg_color=COLORS[i][0], corner_radius=1000).grid(column=0, row=k, pady=3, sticky='ne')
                 k -= 1
         
+        # making all the cards clickable except for owned ones
         if not owned:
             self.bind('<Button-1>', self.card_click)
                 
@@ -41,21 +43,27 @@ class Card(ctk.CTkFrame):
 
         def validate_card():
 
+            # initiating local variable for the price
             price = []
 
+            # calculating the new price to be paid with coins (since cards count as permanent coins)
             for i in range(5):
                 price.append(max(self.price[i] - len(self.controller.player.cards[i]), 0))
 
+            # adding the gold coin price initiated by 0
             price.append(0)
             
+            # compensate unaffordable color coins by gold ones
             for i in range(5):
                 if  price[ i] >= self.controller.player.coins[i]:
                     price[-1] += price[i] - self.controller.player.coins[i]
                     price[ i]  = self.controller.player.coins[i]
 
+            # return if the player doesn't have enough gold coins to compensate
             if price[-1] > self.controller.player.coins[-1]:
                 return
             
+            # clearing the wishlist in case it had something and adding new card
             else:
                 self.controller.price = price
                 self.controller.wishlist_cancel()
@@ -74,7 +82,7 @@ class Card(ctk.CTkFrame):
                     validate_card()
             
             case Mode.RESERVE_CARD:
-                if not self.reserved:
+                if not self.reserved: # can't reserve an already reserved card
                     if self.controller.wishlist != None:
                         if self == self.controller.wishlist:
                             self.controller.wishlist_cancel()
