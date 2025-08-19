@@ -106,14 +106,13 @@ class Controller():
             
             case Mode.END_OF_TURN:
                 self.master.score.configure(text=f'score : {self.player.score}')
-                self.header.configure(text='turn ended')
+                self.action_title.configure(text='turn ended')
                 
                 self.button_1.configure(text='next', command=self.end_of_turn)
                 self.button_1.grid(column=0, row=0, padx=10, sticky='s')
                 
                 self.board.update_coins()
                 self.deck.load_coins(self.player)
-                self.deck.load_cards(self.player)
             
 
     def wishlist_add(self, item):
@@ -160,6 +159,9 @@ class Controller():
                     for i in range(6):
                         if self.price[i] != 0 :
                             self.deck.coin_labels[1][i].configure(text=f'-{self.price[i]}')
+                # enabling confirm when adding to cart for reserving
+                else:
+                    self.button_2.configure(state='enabled')
     
 
     def wishlist_remove(self, coin): # coins only
