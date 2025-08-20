@@ -10,6 +10,8 @@ ctk.set_default_color_theme(COLOR_THEME)
 class SplendorApp(ctk.CTk):
     
     def __init__(self):
+
+        self.DEBUG = False # allows to implement quick debugging code that can be turned off easily ex:(if master.DEBUG : do_stuff)
         
         # initiating the app
         super().__init__()
@@ -44,7 +46,7 @@ class SplendorApp(ctk.CTk):
         self.protocol('WM_DELETE_WINDOW', self.safe_exit)
     
 
-    def game_begin(self):
+    def game_begin(self):        
 
         # adjusting the window view and structure
         self.attributes('-fullscreen', True)
@@ -61,21 +63,38 @@ class SplendorApp(ctk.CTk):
         self.board.grid(column=0, row=1, columnspan=3, sticky='news', padx=40)
 
         # initiating the game controller
-        self.contoller        = Controller(self, self.board, self.deck)
+        self.controller        = Controller(self, self.board, self.deck)
 
         # passing the controller to the deck and board
-        self.deck.controller  = self.contoller
-        self.board.controller = self.contoller
+        self.deck.controller  = self.controller
+        self.board.controller = self.controller
 
         # initiating the standard elements before the game begins
         self.board.load_coins()
         self.board.load_cards()
         self.board.load_faces()
+
+        if self.DEBUG:
+            from elements import Card, Face
+            from utils import FACES
+            from random import choice
+            for player in self.players:
+                for _ in range(4):
+                    card_origin = choice(self.controller.cards[0])
+                    card = Card(self.deck.cards_frame, self.controller, card_origin, owned=True)
+                    card.grid(column=card.color+1, row=0, sticky='n', pady=10+50*len(player.cards[card.color]))
+                    player.add_card(card)
+                
+                for _ in range(2):
+                    face_origin = choice(FACES)
+                    face = Face(self.controller.deck.cards_frame, None, face_origin)
+                    face.grid(column=0, row=0, sticky='n', pady=10+50*len(player.faces))
+                    player.add_face(face)
         
         # the game loop
         while not win:
             for player in self.players:
-                self.contoller.player = player
+                self.controller.player = player
                 player.can_claim_face = True
                 
                 # loading player cards and coins
@@ -83,7 +102,7 @@ class SplendorApp(ctk.CTk):
                 self.deck.load_coins(player)
                 
                 # initiate the round in IDLE mode
-                self.contoller.set_mode(Mode.IDLE)
+                self.controller.set_mode(Mode.IDLE)
                 
                 # setting the wait variable
                 self.round_ended.set(value=False)
@@ -98,39 +117,120 @@ class SplendorApp(ctk.CTk):
 
     def game_end(self):
 
-        # later
+        self.header.configure(text='GAME ENDED')
+        self.controller.mode = Mode.GAME_ENDED
+
+        # clearing the screen
         self.deck.destroy()
-        self.board.destroy()
-        self.score.destroy()
+        self.board.action_frame.destroy()
+        self.board.coins_frame.destroy()
+        self.score.configure(text='')
         
-        winners = [self.players[0]]
-        for player in self.players[1:]:
-            if player.score > winners[0].score:
-                winners = [player]
-            elif player.score == winners[0].score:
-                if player.cards_bought() < winners[0].cards_bought():
-                    winners = [player]
-                elif player.cards_bought() == winners[0].cards_bought():
-                    winners.append(player)
+        # sorting and ranking the players
+        self.players.sort(key=lambda player : player.cards_bought())
+        self.players.sort(key=lambda player : player.score, reverse=True)
+
+        rank = 1
+        self.players[0].rank = rank
+        for i in range(1, len(self.players)):
+            same_score = self.players[i].score == self.players[i-1].score
+            same_cards_bought = self.players[i].cards_bought() == self.players[i-1].cards_bought()
+            if same_score:
+                if same_cards_bought:
+                    pass # not incrementing rank in case of tie
+            else:
+                rank += 1
+            self.players[i].rank = rank
+
+        # making the layout
+        ## decks viewer
+        self.decks_viewer = ctk.CTkTabview(self)
+        self.decks_viewer._segmented_button.configure(font=(MAIN_FONT, 22))
+        self.decks_viewer.grid(column=0, row=2, columnspan=3, sticky='news', pady=20, padx=40)
+
+        for player in self.players:
+
+            name = f'  {player.name}  ' # quick nd dirty way to add spacing in the tabview's segmented button
+            self.decks_viewer.add(name)
+            self.decks_viewer.tab(name).columnconfigure(0, weight=1)
+            self.decks_viewer.tab(name).rowconfigure(0, weight=1)
+
+            deck = Deck(self.decks_viewer.tab(name))
+            player.migrate_cards(deck)
+            deck.load_coins(player)
+            deck.load_cards(player)
+            deck.grid(column=0, row=0, sticky="news")
+
+        ## leaderboad
+        leaderboard_frame = ctk.CTkFrame(self.board)
+        leaderboard_frame.grid(column=0, row=0, sticky='news', padx=20, pady=10)
+
+        leaderboard_frame.columnconfigure((0,1,2), weight=1)
+        leaderboard_frame.rowconfigure((0,1), weight=1)
+
+        titles = ctk.CTkFrame(leaderboard_frame, fg_color="transparent")
+        titles.grid(column=0, row=0, columnspan=3, sticky = "news")
+        titles.columnconfigure((0,1,2), weight=1)
+        titles.rowconfigure(0, weight=1)
+
+        ranks = ctk.CTkFrame(leaderboard_frame, fg_color="transparent")
+        ranks.grid(column=0, row=1, rowspan=3, sticky = "ew")
+
+        names = ctk.CTkFrame(leaderboard_frame, fg_color="transparent")
+        names.grid(column=1, row=1, rowspan=3, sticky = "ew")
+
+        scores = ctk.CTkFrame(leaderboard_frame, fg_color="transparent")
+        scores.grid(column=2, row=1, rowspan=3, sticky = "ew")
+
+        ctk.CTkLabel(titles, text='rank'  , font=(MAIN_FONT, 28)).grid(column=0, row=0, padx=40)
+        ctk.CTkLabel(titles, text='player', font=(MAIN_FONT, 28)).grid(column=1, row=0, padx=40)
+        ctk.CTkLabel(titles, text='score' , font=(MAIN_FONT, 28)).grid(column=2, row=0, padx=40)
         
-        if len(winners) == 1:
-            self.header.configure(text='The winner is :')
-        
-        else:
-            self.header.configure(text='The winners are :')
-        
-        self.rowconfigure(2, weight=4, uniform='a')
-        self.middle_frame = ctk.CTkFrame(self, fg_color='transparent')
-        self.middle_frame.grid(row=1, column=1)
-        
-        for winner in winners:
-            ctk.CTkLabel(self.middle_frame, text=winner.name, font=(MAIN_FONT, 38)).pack(anchor='center', pady=40)
+        for i, player in enumerate(self.players):
+            ctk.CTkLabel(ranks , text=player.rank , font=(MAIN_FONT, 24)).pack(pady=20)
+            ctk.CTkLabel(names , text=player.name , font=(MAIN_FONT, 24)).pack(pady=20)
+            ctk.CTkLabel(scores, text=player.score, font=(MAIN_FONT, 24)).pack(pady=20)
+
+        ## buttons
+        buttons_frame = ctk.CTkFrame(self.board, fg_color='transparent')
+        buttons_frame.grid(column=2, row=0, sticky='news', padx=20, pady=10)
+        buttons_frame.rowconfigure((0,1,2), weight=1)
+        buttons_frame.columnconfigure(0, weight=1)
+
+        restart_button = ctk.CTkButton(buttons_frame, text='play\nagain'    , font=(MAIN_FONT, 22), command=self.game_restart)
+        restart_button.grid(column=0, row=0, sticky='news', pady=20, padx=20)
+
+        reset_button   = ctk.CTkButton(buttons_frame, text='change\nplayers', font=(MAIN_FONT, 22), command=self.game_reset)
+        reset_button.grid(column=0, row=1, sticky='news', pady=20, padx=20)
+
+        exit_button    = ctk.CTkButton(buttons_frame, text='exit\ngame'     , font=(MAIN_FONT, 22), command=self.safe_exit)
+        exit_button.grid(column=0, row=2, sticky='news', pady=20, padx=20)
     
 
     def update_theme(self):
         # updating the theme in command of the toggle
         ctk.set_appearance_mode(self.theme.get())
         self.theme_toggle.configure(text=self.theme.get())
+    
+
+    def game_restart(self):
+
+        for player in self.players:
+            player.__init__(player.name)
+        
+        self.board.destroy()
+        self.decks_viewer.destroy()
+        self.game_begin()
+    
+
+    def game_reset(self):
+
+        self.board.destroy()
+        self.decks_viewer.destroy()
+        self.rowconfigure(2, weight=1, uniform='a')
+
+        self.home = Home(self)
+        self.home.grid(column=0, row=1, columnspan=3, ipady=50)
     
 
     def safe_exit(self):

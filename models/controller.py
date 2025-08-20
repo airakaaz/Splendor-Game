@@ -42,7 +42,7 @@ class Controller():
         # initiating table memory (stores only origins not values)
         self.table_memory = [[], [], [], []]
         self.cards = import_cards()
-        self.faces = FACES
+        self.faces = FACES[:]
 
         for r in range(3):
             for x in range(4):
