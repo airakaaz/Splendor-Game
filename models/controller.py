@@ -69,7 +69,7 @@ class Controller():
             self.button_2.configure(text='confirm', state='enabled', command=self.wishlist_confirm)
             self.button_2.grid(column=1, row=0, padx=10, sticky='s')
 
-            if self.mode == Mode.RESERVE_CARD:
+            if self.mode is Mode.RESERVE_CARD:
                 Coin(self.middle_frame, self, 5, in_action=True).pack(pady=30)
                 self.button_2.configure(state='disabled')
         
@@ -155,7 +155,7 @@ class Controller():
                 self.wishlist.pack()
 
                 # showing coins to be deduced from the player's balance
-                if self.mode == Mode.GET_CARD:
+                if self.mode is Mode.GET_CARD:
                     for i in range(6):
                         if self.price[i] != 0 :
                             self.deck.coin_labels[1][i].configure(text=f'-{self.price[i]}')

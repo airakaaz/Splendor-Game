@@ -41,7 +41,7 @@ class Board(ctk.CTkFrame):
     def add_card(self, c, x=None, rank=None):
 
         # c is a Card object (c.x should not be None) : grid it into its position directly
-        if type(c) == Card:
+        if type(c) is Card:
             c.grid(column=c.x, row=c.rank)
         
         # c is a card origin values (x and rank are given) : the Card object is created and placed accordingly

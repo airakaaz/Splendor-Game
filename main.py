@@ -11,8 +11,9 @@ class SplendorApp(ctk.CTk):
     
     def __init__(self):
 
-        self.DEBUG = False # allows to implement quick debugging code that can be turned off easily ex:(if master.DEBUG : do_stuff)
-        
+        # allowing implementaton of quick debugging code that can be turned off easily ex:(if master.DEBUG : do_stuff)
+        self.DEBUG = False
+
         # initiating the app
         super().__init__()
         self.geometry('1800x1000')
@@ -162,29 +163,24 @@ class SplendorApp(ctk.CTk):
             deck.grid(column=0, row=0, sticky="news")
 
         ## leaderboad
-        leaderboard_frame = ctk.CTkFrame(self.board)
-        leaderboard_frame.grid(column=0, row=0, sticky='news', padx=20, pady=10)
+        leaderboard = ctk.CTkFrame(self.board)
+        leaderboard.grid(column=0, row=0, sticky='news', padx=20, pady=10)
 
-        leaderboard_frame.columnconfigure((0,1,2), weight=1)
-        leaderboard_frame.rowconfigure((0,1), weight=1)
+        leaderboard.columnconfigure((0,1,2), weight=1)
+        leaderboard.rowconfigure(1, weight=1)
 
-        titles = ctk.CTkFrame(leaderboard_frame, fg_color="transparent")
-        titles.grid(column=0, row=0, columnspan=3, sticky = "news")
-        titles.columnconfigure((0,1,2), weight=1)
-        titles.rowconfigure(0, weight=1)
+        ranks = ctk.CTkFrame(leaderboard, fg_color="transparent")
+        ranks.grid(column=0, row=1, rowspan=3, sticky="ew")
 
-        ranks = ctk.CTkFrame(leaderboard_frame, fg_color="transparent")
-        ranks.grid(column=0, row=1, rowspan=3, sticky = "ew")
+        names = ctk.CTkFrame(leaderboard, fg_color="transparent")
+        names.grid(column=1, row=1, rowspan=3, sticky="ew")
 
-        names = ctk.CTkFrame(leaderboard_frame, fg_color="transparent")
-        names.grid(column=1, row=1, rowspan=3, sticky = "ew")
+        scores = ctk.CTkFrame(leaderboard, fg_color="transparent")
+        scores.grid(column=2, row=1, rowspan=3, sticky="ew")
 
-        scores = ctk.CTkFrame(leaderboard_frame, fg_color="transparent")
-        scores.grid(column=2, row=1, rowspan=3, sticky = "ew")
-
-        ctk.CTkLabel(titles, text='rank'  , font=(MAIN_FONT, 28)).grid(column=0, row=0, padx=40)
-        ctk.CTkLabel(titles, text='player', font=(MAIN_FONT, 28)).grid(column=1, row=0, padx=40)
-        ctk.CTkLabel(titles, text='score' , font=(MAIN_FONT, 28)).grid(column=2, row=0, padx=40)
+        ctk.CTkLabel(leaderboard, text='rank'  , font=(MAIN_FONT, 28)).grid(column=0, row=0, padx=40, pady=(40,0))
+        ctk.CTkLabel(leaderboard, text='player', font=(MAIN_FONT, 28)).grid(column=1, row=0, padx=40, pady=(40,0))
+        ctk.CTkLabel(leaderboard, text='score' , font=(MAIN_FONT, 28)).grid(column=2, row=0, padx=40, pady=(40,0))
         
         for i, player in enumerate(self.players):
             ctk.CTkLabel(ranks , text=player.rank , font=(MAIN_FONT, 24)).pack(pady=20)
@@ -246,4 +242,5 @@ class SplendorApp(ctk.CTk):
 
 # running the game when this file is executed
 if __name__ == '__main__':
-    SplendorApp().mainloop()
+    game = SplendorApp()
+    game.mainloop()
