@@ -42,7 +42,7 @@ class Controller():
         # initiating table memory (stores only origins not values)
         self.table_memory = [[], [], [], []]
         self.cards = import_cards()
-        self.faces = FACES
+        self.faces = FACES[:]
 
         for r in range(3):
             for x in range(4):
@@ -260,6 +260,8 @@ class Controller():
             case Mode.RESERVE_CARD:
                 # creating card and adding it to the player's reserved cards + 1 gold coin
                 card = Card(self.deck.reserved_frame, self, self.wishlist.origin, reserved=True)
+                i = len(self.player.reserved)
+                card.grid(column=0, row=0, sticky='nw', padx=30+i*55, pady=40+i*52)
                 self.player.coins[-1] += 1
                 self.player.reserved.append(card)
 

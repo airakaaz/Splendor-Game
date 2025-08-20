@@ -29,6 +29,7 @@ class Mode(Enum):
     GET_CARD     = 2
     RESERVE_CARD = 3
     END_OF_TURN  = 4
+    GAME_ENDED   = 5
 
 FACES         = [
     [0, 0, 4, 4, 0],
