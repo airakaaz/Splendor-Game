@@ -78,10 +78,10 @@ class SplendorApp(ctk.CTk):
         if self.DEBUG:
             from elements import Card, Face
             from utils import FACES
-            from random import choice
+            from random import choice, randint
             for player in self.players:
-                for _ in range(4):
-                    card_origin = choice(self.controller.cards[0])
+                for _ in range(randint(4,10)):
+                    card_origin = choice(self.controller.cards[1])
                     card = Card(self.deck.cards_frame, self.controller, card_origin, owned=True)
                     card.grid(column=card.color+1, row=0, sticky='n', pady=10+50*len(player.cards[card.color]))
                     player.add_card(card)
@@ -139,6 +139,8 @@ class SplendorApp(ctk.CTk):
             if same_score:
                 if same_cards_bought:
                     pass # not incrementing rank in case of tie
+                else:
+                    rank += 1
             else:
                 rank += 1
             self.players[i].rank = rank
